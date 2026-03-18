@@ -12,8 +12,6 @@ public partial class Main : Control
     private Label? _selectedValueLabel;
     private RichTextLabel? _rosterValueLabel;
     private Label? _statusLabel;
-    private Texture2D? _dawnPieceTexture;
-    private Texture2D? _duskPieceTexture;
 
     public override void _Ready()
     {
@@ -22,8 +20,6 @@ public partial class Main : Control
         _selectedValueLabel = GetNode<Label>("Margin/Layout/Content/Sidebar/SelectedPanel/SelectedMargin/SelectedBox/SelectedValue");
         _rosterValueLabel = GetNode<RichTextLabel>("Margin/Layout/Content/Sidebar/RosterPanel/RosterMargin/RosterBox/RosterValue");
         _statusLabel = GetNode<Label>("Margin/Layout/Actions/StatusLabel");
-        _dawnPieceTexture = GD.Load<Texture2D>("res://art/dawn-piece.svg");
-        _duskPieceTexture = GD.Load<Texture2D>("res://art/dusk-piece.svg");
 
         GetNode<Button>("Margin/Layout/Actions/NewSkirmishButton").Pressed += StartNewSkirmish;
 
@@ -81,7 +77,7 @@ public partial class Main : Control
                 var position = new Vector2I(column, row);
                 var unit = _skirmish.GetUnitAt(position);
                 var isSelected = _skirmish.SelectedUnit?.Position == position;
-                _tiles[column, row].SetTileState(position, unit, isSelected, _dawnPieceTexture, _duskPieceTexture);
+                _tiles[column, row].SetTileState(position, unit, isSelected);
             }
         }
 

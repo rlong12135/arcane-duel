@@ -7,8 +7,6 @@ public partial class TileView : Control
     private UnitPiece? _unit;
     private bool _isSelected;
     private bool _isHovered;
-    private Texture2D? _dawnTexture;
-    private Texture2D? _duskTexture;
     private Color _baseColor = new("425973");
 
     public TileView()
@@ -66,16 +64,7 @@ public partial class TileView : Control
         var markerColor = _unit.Team == TeamSide.Dawn ? new Color("dff1ff") : new Color("ffd7e6");
         DrawCircle(new Vector2(Size.X / 2f, Size.Y / 2f), 23f, markerColor);
 
-        var texture = _unit.Team == TeamSide.Dawn ? _dawnTexture : _duskTexture;
-        if (texture is not null)
-        {
-            var texturePosition = new Vector2((Size.X - 48f) / 2f, (Size.Y - 48f) / 2f - 3f);
-            DrawTextureRect(texture, new Rect2(texturePosition, new Vector2(48f, 48f)), false);
-        }
-        else
-        {
-            DrawCircle(new Vector2(Size.X / 2f, Size.Y / 2f), 16f, _unit.Team == TeamSide.Dawn ? new Color("4ea8ff") : new Color("ff6f9d"));
-        }
+        DrawUnitGlyph(_unit, new Vector2(Size.X / 2f, Size.Y / 2f));
 
         DrawString(font, new Vector2(8, 20), _unit.ShortCode, HorizontalAlignment.Left, -1, fontSize - 1, new Color("08111f"));
         DrawString(font, new Vector2(Size.X / 2f, Size.Y - 10), _unit.DisplayName, HorizontalAlignment.Center, -1, fontSize, new Color("08111f"));
@@ -89,17 +78,110 @@ public partial class TileView : Control
     public void SetTileState(
         Vector2I boardPosition,
         UnitPiece? unit,
-        bool isSelected,
-        Texture2D? dawnTexture,
-        Texture2D? duskTexture)
+        bool isSelected)
     {
         TilePosition = boardPosition;
         _unit = unit;
         _isSelected = isSelected;
-        _dawnTexture = dawnTexture;
-        _duskTexture = duskTexture;
         _baseColor = ResolveBaseColor(unit, isSelected, boardPosition);
         QueueRedraw();
+    }
+
+    private void DrawUnitGlyph(UnitPiece unit, Vector2 center)
+    {
+        var ink = new Color("111827");
+        switch (unit.DisplayName)
+        {
+            case "Guardian":
+                DrawShield(center, ink);
+                break;
+            case "Archer":
+                DrawBow(center, ink);
+                break;
+            case "Mage":
+                DrawMage(center, ink);
+                break;
+            case "Vanguard":
+                DrawVanguard(center, ink);
+                break;
+            default:
+                DrawCircle(center, 16f, ink);
+                break;
+        }
+    }
+
+    private void DrawShield(Vector2 center, Color ink)
+    {
+        Vector2[] points =
+        [
+            center + new Vector2(0, -18),
+            center + new Vector2(16, -11),
+            center + new Vector2(14, 6),
+            center + new Vector2(0, 18),
+            center + new Vector2(-14, 6),
+            center + new Vector2(-16, -11)
+        ];
+        DrawPolygon(points, RepeatColor(ink, points.Length));
+        DrawPolyline(points.Append(points[0]).ToArray(), new Color("ffffff"), 2f);
+    }
+
+    private void DrawBow(Vector2 center, Color ink)
+    {
+        DrawArc(center + new Vector2(-6, 0), 18f, -1.1f, 1.1f, 24, ink, 4f);
+        DrawLine(center + new Vector2(-6, -18), center + new Vector2(-6, 18), ink, 2f);
+        DrawLine(center + new Vector2(-2, 0), center + new Vector2(18, 0), ink, 4f);
+        Vector2[] arrow =
+        [
+            center + new Vector2(18, 0),
+            center + new Vector2(8, -6),
+            center + new Vector2(8, 6)
+        ];
+        DrawPolygon(arrow, RepeatColor(ink, arrow.Length));
+    }
+
+    private void DrawMage(Vector2 center, Color ink)
+    {
+        DrawCircle(center + new Vector2(10, -18), 8f, ink);
+        DrawLine(center + new Vector2(-6, 18), center + new Vector2(0, -10), ink, 5f);
+        DrawLine(center + new Vector2(-12, 14), center + new Vector2(6, 14), ink, 5f);
+        DrawStar(center + new Vector2(-10, -6), 9f, 4f, 5, ink);
+    }
+
+    private void DrawVanguard(Vector2 center, Color ink)
+    {
+        DrawLine(center + new Vector2(-14, 14), center + new Vector2(10, -10), ink, 6f);
+        Vector2[] blade =
+        [
+            center + new Vector2(10, -10),
+            center + new Vector2(18, -18),
+            center + new Vector2(22, -6)
+        ];
+        DrawPolygon(blade, RepeatColor(ink, blade.Length));
+        DrawLine(center + new Vector2(-18, 18), center + new Vector2(-10, 10), ink, 4f);
+    }
+
+    private void DrawStar(Vector2 center, float outerRadius, float innerRadius, int points, Color color)
+    {
+        var vertices = new Vector2[points * 2];
+        for (var i = 0; i < vertices.Length; i++)
+        {
+            var angle = -Mathf.Pi / 2f + i * Mathf.Pi / points;
+            var radius = i % 2 == 0 ? outerRadius : innerRadius;
+            vertices[i] = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+        }
+
+        DrawPolygon(vertices, RepeatColor(color, vertices.Length));
+    }
+
+    private static Color[] RepeatColor(Color color, int count)
+    {
+        var colors = new Color[count];
+        for (var i = 0; i < count; i++)
+        {
+            colors[i] = color;
+        }
+
+        return colors;
     }
 
     private static Color ResolveBaseColor(UnitPiece? unit, bool isSelected, Vector2I boardPosition)
