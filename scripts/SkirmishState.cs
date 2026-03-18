@@ -26,7 +26,9 @@ public sealed class SkirmishState
 
     public UnitPiece? GetUnitAt(Vector2I position)
     {
-        return _units.FirstOrDefault(unit => unit.Position == position);
+        return _units.FirstOrDefault(unit =>
+            unit.Position.X == position.X &&
+            unit.Position.Y == position.Y);
     }
 
     public void HandleTileActivated(Vector2I position)
@@ -176,10 +178,10 @@ public sealed class SkirmishState
         return $"{teamName}\n{string.Join("\n", lines)}";
     }
 
-    private static IEnumerable<UnitPiece> CreateInitialUnits()
+    private static List<UnitPiece> CreateInitialUnits()
     {
-        return
-        [
+        return new List<UnitPiece>
+        {
             new UnitPiece
             {
                 Id = "dawn-guardian",
@@ -260,7 +262,6 @@ public sealed class SkirmishState
                 MoveRange = 2,
                 Power = 3
             }
-        ];
+        };
     }
 }
-
