@@ -1,0 +1,10 @@
+.godot/
+.import/
+.mono/
+bin/
+obj/
+.vs/
+.vscode/.godot/
+export_presets.cfg
+*.translation
+*.import
