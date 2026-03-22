@@ -8,3 +8,10 @@ obj/
 export_presets.cfg
 *.translation
 *.import
+.env
+.env.local
+artifacts/
+logs/
+tmp/
+coverage/
+Library/

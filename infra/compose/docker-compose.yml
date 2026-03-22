@@ -1,0 +1,29 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    restart: unless-stopped
+
+  project-helper:
+    build:
+      context: ../docker/project-helper
+    volumes:
+      - ../../:/workspace
+    working_dir: /workspace
+    command: ["sleep", "infinity"]
+    restart: unless-stopped
+
+  git-runner:
+    build:
+      context: ../docker/git-runner
+    volumes:
+      - ../../:/workspace
+    working_dir: /workspace
+    command: ["sleep", "infinity"]
+    profiles: ["runner"]
+
+volumes:
+  ollama_models:
